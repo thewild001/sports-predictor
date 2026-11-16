@@ -12,7 +12,7 @@ def main() -> None:
         raise SystemExit("MCP is optional. Install with: pip install 'sports-predictor[mcp]'") from exc
     from sports_predictor.betting.paper import PaperLedger
     from sports_predictor.betting.value import evaluate_bet
-    from sports_predictor.data.fixtures import FixtureStore, ingest_fixture_file
+    from sports_predictor.data.fixtures import FixtureStore, ingest_fixture_file as import_fixture_file
     from sports_predictor.data.ingest import ingest_file
     from sports_predictor.data.store import MatchStore
     from sports_predictor.dashboard import export_dashboard
@@ -54,7 +54,7 @@ def main() -> None:
     def ingest_fixture_file(file_path: str, provider: str | None = None) -> dict:
         """Import source-attributed fixture JSON into the local discovery catalogue."""
         fixtures_path.parent.mkdir(parents=True, exist_ok=True)
-        return ingest_fixture_file(file_path, FixtureStore(fixtures_path), provider=provider)
+        return import_fixture_file(file_path, FixtureStore(fixtures_path), provider=provider)
 
     @server.tool()
     def predict_football_match(home_team: str, away_team: str, home_xg: float, away_xg: float) -> dict:
