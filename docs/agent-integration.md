@@ -49,3 +49,14 @@ Use the examples in `adapters/`. Claude Code, OpenCode, Cursor, Codex, Pi and He
 4. Call `predict_football_match` once with test inputs and inspect the returned JSON.
 
 The CI protocol test validates the MCP server, not every host application's implementation. Client support remains provisional until step 3 has been performed on a real installed version.
+
+## Web Intelligence
+
+When the Docker browser worker is running, MCP also exposes:
+
+- `browse_web_page(url, wait_until)`: Playwright navigation and visible DOM evidence.
+- `extract_web_page(url, instruction)`: optional Stagehand structured extraction.
+
+Set `SPORTS_PREDICTOR_WEB_INTELLIGENCE_URL` and `SPORTS_PREDICTOR_WEB_INTELLIGENCE_TOKEN` in the MCP process. The worker must use the same token and an allow-list containing the target domain. See [web-intelligence.md](web-intelligence.md).
+
+Browser tools are acquisition primitives, not sports-data providers. The agent should use them to obtain source evidence and then pass it through a provider-specific adapter. Do not ask the LLM to invent canonical fixture or statistical records from page text.

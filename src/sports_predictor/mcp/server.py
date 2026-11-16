@@ -18,6 +18,7 @@ def main() -> None:
     from sports_predictor.dashboard import export_dashboard
     from sports_predictor.prediction.backtest import backtest
     from sports_predictor.prediction.poisson import predict_match
+    from sports_predictor.web_intelligence import WebIntelligenceClient, WebIntelligenceError
 
     server = FastMCP("sports-predictor")
     ledger_path = Path(os.environ.get(
@@ -26,6 +27,23 @@ def main() -> None:
         "SPORTS_PREDICTOR_DATASET", "~/.sports-predictor/matches.jsonl")).expanduser()
     fixtures_path = Path(os.environ.get(
         "SPORTS_PREDICTOR_FIXTURES", "~/.sports-predictor/fixtures.jsonl")).expanduser()
+    web_client = WebIntelligenceClient()
+
+    @server.tool()
+    def browse_web_page(url: str, wait_until: str = "domcontentloaded") -> dict:
+        """Browse an allow-listed statistics page with Playwright and return attributed page evidence."""
+        try:
+            return web_client.browse(url, wait_until=wait_until)
+        except WebIntelligenceError as exc:
+            return {"ok": False, "error": str(exc)}
+
+    @server.tool()
+    def extract_web_page(url: str, instruction: str) -> dict:
+        """Extract structured fields from an allow-listed page using optional Stagehand."""
+        try:
+            return web_client.extract(url, instruction)
+        except WebIntelligenceError as exc:
+            return {"ok": False, "error": str(exc)}
 
     @server.tool()
     def search_competitions(query: str = "", season: str | None = None,

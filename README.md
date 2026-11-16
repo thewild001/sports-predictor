@@ -138,3 +138,17 @@ GitHub Actions ejecuta tests y lint en Python 3.11 y 3.12.
 ## Licencia
 
 MIT.
+
+## Web Intelligence
+
+Sports Predictor incorpora un worker de navegador aislado en Docker. Playwright realiza navegación determinista y extracción del DOM; Stagehand es opcional para extracción estructurada asistida por un modelo. El proceso MCP se comunica con el worker por HTTP autenticado y puede apuntar a un endpoint remoto compatible.
+
+```bash
+cp .env.web-intelligence.example .env
+# Configura SPORTS_PREDICTOR_WEB_INTELLIGENCE_TOKEN y dominios permitidos.
+docker compose --env-file .env -f docker-compose.web-intelligence.yml up --build -d
+```
+
+Nuevas herramientas MCP: `browse_web_page` y `extract_web_page`. La segunda requiere habilitar Stagehand y configurar un modelo. El worker aplica allow-list de dominios, límites de tamaño/tiempo y publica en loopback por defecto.
+
+Esta capacidad recupera evidencia web, pero **no es todavía un adaptador específico de FotMob/SofaScore ni convierte automáticamente páginas en estadísticas canónicas**. Consulta [Web Intelligence](docs/web-intelligence.md) antes de habilitarla.

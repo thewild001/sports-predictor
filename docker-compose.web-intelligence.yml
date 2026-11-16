@@ -1,0 +1,26 @@
+services:
+  web-intelligence:
+    build:
+      context: ./web-intelligence
+    container_name: sports-predictor-web-intelligence
+    environment:
+      PORT: 8787
+      ALLOWED_DOMAINS: ${SPORTS_PREDICTOR_ALLOWED_DOMAINS:-fotmob.com,sofascore.com,fbref.com}
+      WEB_INTELLIGENCE_TOKEN: ${SPORTS_PREDICTOR_WEB_INTELLIGENCE_TOKEN:?Set SPORTS_PREDICTOR_WEB_INTELLIGENCE_TOKEN}
+      STAGEHAND_ENABLED: ${SPORTS_PREDICTOR_STAGEHAND_ENABLED:-false}
+      STAGEHAND_MODEL: ${SPORTS_PREDICTOR_STAGEHAND_MODEL:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      MAX_TEXT_CHARS: 30000
+      NAVIGATION_TIMEOUT_MS: 25000
+    ports:
+      - "127.0.0.1:8787:8787"
+    init: true
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp:size=256m
+    cap_drop:
+      - ALL
