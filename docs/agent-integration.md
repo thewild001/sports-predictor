@@ -13,7 +13,7 @@ The process communicates over stdio. Do not print logs or banners to stdout; res
 
 ## Tool surface
 
-- `predict_football_match`
+- `search_competitions`\n- `get_competition_fixtures`\n- `get_fixture_details`\n- `ingest_fixture_file`\n- `predict_football_match`
 - `evaluate_betting_value`
 - `ingest_match_file`
 - `backtest_historical_matches`
@@ -22,7 +22,7 @@ The process communicates over stdio. Do not print logs or banners to stdout; res
 - `paper_trading_summary`
 - `export_paper_dashboard`
 
-The dataset and ledger paths can be overridden with `SPORTS_PREDICTOR_DATASET` and `SPORTS_PREDICTOR_LEDGER`.
+The historical dataset, paper ledger and fixture catalogue paths can be overridden with `SPORTS_PREDICTOR_DATASET`, `SPORTS_PREDICTOR_LEDGER` and `SPORTS_PREDICTOR_FIXTURES`.\n\n## Competition discovery workflow\n\n1. Import source-attributed fixture JSON using `ingest_fixture_file`. The path must be readable by the MCP server process.\n2. Call `search_competitions` to resolve the exact competition ID and season.\n3. Call `get_competition_fixtures` with that ID and optional ISO dates (`YYYY-MM-DD`).\n4. Call `get_fixture_details` to inspect the latest stored observation and provenance.\n\nThis is a local catalogue, not a live schedule feed. A missing fixture is not evidence that no real-world fixture exists. See [Competition discovery](competition-discovery.md).
 
 ## Client configuration
 
