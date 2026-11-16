@@ -120,31 +120,24 @@ const server = createServer(async (req, res) => {
     const browser = await localBrowser.launch({ headless: true });
     let stagehand: Stagehand | undefined;
     try {
-      stagehand = await Stagehand.create({
-        browser,
-        ...(process.env.STAGEHAND_MODEL ? { model: process.env.STAGEHAND_MODEL } : {}),
-      });
+      const configuredModel = process.env.STAGEHAND_MODEL;
+      const model = configuredModel ? {
+        modelName: configuredModel as
+          `openai/${string}` | `anthropic/${string}` | `google/${string}` |
+          `groq/${string}` | `cerebras/${string}`,
+      } : undefined;
+      stagehand = await Stagehand.create({ browser, ...(model ? { model } : {}) });
       const page = await browser.context.newPage();
-      await page.route("**/*", async (route) => {
-        try {
-          const target = new URL(route.request().url());
-          if (["http:", "https:"].includes(target.protocol) && isAllowedHost(target.hostname)) {
-            await route.continue();
-          } else {
-            await route.abort("blockedbyclient");
-          }
-        } catch {
-          await route.abort("blockedbyclient");
-        }
-      });
-      page.setDefaultNavigationTimeout(navigationTimeout);
       await page.goto(url.toString(), { waitUntil: "domcontentloaded" });
+      if (!isAllowedHost(new URL(page.url()).hostname)) {
+        throw new Error("navigation redirected outside ALLOWED_DOMAINS");
+      }
       const schema = z.object({ fields: z.array(z.object({
         name: z.string(), value: z.string(),
       })) });
       const extracted = await stagehand.extract(
         `On this page, ${body.instruction}. Return concise factual values and do not infer missing information.`,
-        schema,
+        schema as never,
       );
       return send(res, 200, {
         url: page.url(),
