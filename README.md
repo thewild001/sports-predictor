@@ -4,7 +4,7 @@
 
 Sports Predictor transforma estadísticas trazables en probabilidades, evalúa cuotas y permite medir decisiones en paper trading. El núcleo estadístico es independiente de las fuentes de datos y del agente de IA que lo utilice.
 
-> **Estado: MVP ampliado.** Hay ingesta JSON con procedencia, backtesting por mercado/competición, calibración experimental, MCP, adaptadores de configuración y un dashboard HTML de paper trading. Todavía no hay descarga automática de FotMob, calibración fuera de muestra ni validación de los seis clientes en instalaciones reales.
+> **Estado: MVP ampliado.** Hay catálogo de competiciones y fixtures importados, ingesta histórica con procedencia, backtesting por mercado/competición, calibración experimental, MCP, adaptadores y paper trading. El descubrimiento opera sobre el catálogo local; todavía no hay proveedor de fixtures en vivo, descarga automática de FotMob, calibración fuera de muestra ni validación de los seis clientes en instalaciones reales.
 
 ## Capacidades
 
@@ -54,6 +54,14 @@ Cada registro requiere fuente, timestamp de recuperación, competición, tempora
 
 **FotMob:** el adaptador actual normaliza un sobre de datos previamente mapeado; no realiza peticiones automáticas ni depende de endpoints internos no documentados. Revisa [Data ingestion](docs/data-ingestion.md) antes de conectar una fuente real.
 
+## Descubrimiento de competiciones y partidos
+
+El catálogo de fixtures permite descubrir competiciones/temporadas y consultar sus partidos por rango de fechas y estado. La capa es independiente del proveedor y conserva proveedor, URL, ID upstream y timestamp de recuperación.
+
+Actualmente los fixtures se importan desde JSON mediante la herramienta MCP `ingest_fixture_file`; no existe todavía un conector que descargue calendarios en vivo. Consulta [Competition discovery](docs/competition-discovery.md) para el contrato JSON y el flujo de consulta.
+
+La ruta del catálogo se configura con `SPORTS_PREDICTOR_FIXTURES` y por defecto es `~/.sports-predictor/fixtures.jsonl`. Un catálogo vacío significa que no hay registros importados, no que la competición carezca de partidos reales.
+
 ## Backtesting y calibración
 
 El informe incluye 1X2, BTTS y Over 1.5/2.5/3.5, agrupados por mercado y competición/mercado. La simulación de valor utiliza cuotas 1X2 aportadas y una unidad plana por selección.
@@ -77,7 +85,7 @@ Ejecuta `sports-predictor-mcp` mediante transporte stdio. Herramientas expuestas
 
 | Herramienta | Propósito |
 |---|---|
-| `predict_football_match` | Predicción 1X2, BTTS, goles y marcadores |
+| `search_competitions` | Buscar competiciones y temporadas disponibles en el catálogo |\n| `get_competition_fixtures` | Consultar partidos por competición, fecha y estado |\n| `get_fixture_details` | Consultar el registro y procedencia de un fixture |\n| `ingest_fixture_file` | Importar fixtures desde JSON al catálogo local |\n| `predict_football_match` | Predicción 1X2, BTTS, goles y marcadores |
 | `evaluate_betting_value` | EV, cuota justa y stake limitado |
 | `ingest_match_file` | Ingesta local con procedencia |
 | `backtest_historical_matches` | Evaluación histórica y calibración |
@@ -86,7 +94,7 @@ Ejecuta `sports-predictor-mcp` mediante transporte stdio. Herramientas expuestas
 | `paper_trading_summary` | Métricas del portafolio simulado |
 | `export_paper_dashboard` | Exportar informe HTML |
 
-Variables: `SPORTS_PREDICTOR_LEDGER` y `SPORTS_PREDICTOR_DATASET`.
+Variables: `SPORTS_PREDICTOR_LEDGER`, `SPORTS_PREDICTOR_DATASET` y `SPORTS_PREDICTOR_FIXTURES`.
 
 ## Integración con agentes
 
@@ -117,7 +125,7 @@ GitHub Actions ejecuta tests y lint en Python 3.11 y 3.12.
 ## Limitaciones conocidas
 
 1. El modelo Poisson independiente es una línea base; no modela dependencia entre goles, alineaciones, lesiones ni contexto táctico.
-2. No existe todavía un fetcher FotMob ni integración de cuotas en vivo.
+2. El catálogo de fixtures requiere importación; no existe todavía un proveedor de calendarios en vivo ni integración de cuotas en vivo.
 3. No hay entrenamiento con históricos ni calibración fuera de muestra automatizada.
 4. La simulación ROI usa una unidad plana y cuotas aportadas; no ajusta margen de mercado ni mide closing-line value.
 5. Las configuraciones de agentes requieren validación en las versiones instaladas por el usuario.
