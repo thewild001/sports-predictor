@@ -50,3 +50,35 @@ FotMob does not expose a stable public API contract for this project to rely on.
 - Avoid mixing xG from different providers without documenting the definition.
 - Reject incomplete/contradictory records and investigate duplicate fixtures.
 - Retain the raw source artifact separately when permitted by its terms.
+
+
+## Fixture catalogue
+
+Competition discovery uses a separate JSONL catalogue because a fixture can exist before any xG or result data is available. A fixture record requires source attribution and a timezone-aware kickoff:
+
+```json
+{
+  "fixture_id": "provider-fixture-001",
+  "competition_id": "laliga",
+  "competition_name": "LaLiga",
+  "country": "Spain",
+  "season": "2026/27",
+  "matchday": "13",
+  "kickoff": "2026-11-20T20:00:00+01:00",
+  "home_team": "Real Madrid",
+  "away_team": "Sevilla",
+  "status": "scheduled",
+  "source": {
+    "provider": "manual",
+    "retrieved_at": "2026-11-16T10:00:00Z",
+    "source_url": "https://example.test/fixture/provider-fixture-001",
+    "source_record_id": "provider-fixture-001"
+  }
+}
+```
+
+Import a JSON array or an object containing a `fixtures` array with the MCP tool `ingest_fixture_file`. Each record must contain its own `source` metadata. The catalogue deduplicates on `(fixture_id, provider)`; queries collapse multiple provider observations to the latest retrieved record per fixture.
+
+Set `SPORTS_PREDICTOR_FIXTURES` to change the JSONL catalogue location. The default is `~/.sports-predictor/fixtures.jsonl`.
+
+The discovery API currently reads imported records only. It does not fetch FotMob or any other provider automatically, and an empty catalogue must never be presented as an empty real-world competition schedule.
