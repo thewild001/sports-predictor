@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "sports-predictor": {
+      "command": "sports-predictor-mcp",
+      "args": []
+    }
+  }
+}

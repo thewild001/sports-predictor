@@ -1,0 +1,10 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "sports-predictor": {
+      "type": "local",
+      "command": ["sports-predictor-mcp"],
+      "enabled": true
+    }
+  }
+}
