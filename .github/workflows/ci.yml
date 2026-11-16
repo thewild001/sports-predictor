@@ -25,3 +25,19 @@ jobs:
         run: pytest -q
       - name: Check formatting and lint
         run: ruff check src tests scripts
+
+  web-intelligence:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: web-intelligence/package.json
+      - name: Install browser worker dependencies
+        working-directory: web-intelligence
+        run: npm install
+      - name: Compile browser worker
+        working-directory: web-intelligence
+        run: npm run build
