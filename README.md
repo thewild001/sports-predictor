@@ -85,7 +85,11 @@ Ejecuta `sports-predictor-mcp` mediante transporte stdio. Herramientas expuestas
 
 | Herramienta | Propósito |
 |---|---|
-| `search_competitions` | Buscar competiciones y temporadas disponibles en el catálogo |\n| `get_competition_fixtures` | Consultar partidos por competición, fecha y estado |\n| `get_fixture_details` | Consultar el registro y procedencia de un fixture |\n| `ingest_fixture_file` | Importar fixtures desde JSON al catálogo local |\n| `predict_football_match` | Predicción 1X2, BTTS, goles y marcadores |
+| `search_competitions` | Buscar competiciones y temporadas disponibles en el catálogo |
+| `get_competition_fixtures` | Consultar partidos por competición, fecha y estado |
+| `get_fixture_details` | Consultar el registro y procedencia de un fixture |
+| `ingest_fixture_file` | Importar fixtures desde JSON al catálogo local |
+| `predict_football_match` | Predicción 1X2, BTTS, goles y marcadores |
 | `evaluate_betting_value` | EV, cuota justa y stake limitado |
 | `ingest_match_file` | Ingesta local con procedencia |
 | `backtest_historical_matches` | Evaluación histórica y calibración |
