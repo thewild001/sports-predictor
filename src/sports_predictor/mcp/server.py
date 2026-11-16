@@ -1,5 +1,6 @@
 """Optional MCP server exposing the Sports Predictor domain tools."""
 from __future__ import annotations
+
 import os
 from pathlib import Path
 
@@ -11,6 +12,7 @@ def main() -> None:
         raise SystemExit("MCP is optional. Install with: pip install 'sports-predictor[mcp]'") from exc
     from sports_predictor.betting.paper import PaperLedger
     from sports_predictor.betting.value import evaluate_bet
+    from sports_predictor.data.fixtures import FixtureStore, ingest_fixture_file
     from sports_predictor.data.ingest import ingest_file
     from sports_predictor.data.store import MatchStore
     from sports_predictor.dashboard import export_dashboard
@@ -22,6 +24,37 @@ def main() -> None:
         "SPORTS_PREDICTOR_LEDGER", "~/.sports-predictor/paper-trading.sqlite3")).expanduser()
     dataset_path = Path(os.environ.get(
         "SPORTS_PREDICTOR_DATASET", "~/.sports-predictor/matches.jsonl")).expanduser()
+    fixtures_path = Path(os.environ.get(
+        "SPORTS_PREDICTOR_FIXTURES", "~/.sports-predictor/fixtures.jsonl")).expanduser()
+
+    @server.tool()
+    def search_competitions(query: str = "", season: str | None = None,
+                            country: str | None = None) -> dict:
+        """Search competitions and seasons currently present in the fixture catalogue."""
+        competitions = FixtureStore(fixtures_path).search_competitions(query, season, country)
+        return {"competitions": competitions, "count": len(competitions)}
+
+    @server.tool()
+    def get_competition_fixtures(competition_id: str, date_from: str | None = None,
+                                 date_to: str | None = None, status: str | None = None,
+                                 limit: int = 50) -> dict:
+        """List fixtures for a discovered competition ID, optionally filtered by date and status."""
+        fixtures = FixtureStore(fixtures_path).list_fixtures(
+            competition_id, date_from=date_from, date_to=date_to, status=status, limit=limit
+        )
+        return {"competition_id": competition_id, "fixtures": fixtures, "count": len(fixtures)}
+
+    @server.tool()
+    def get_fixture_details(fixture_id: str) -> dict:
+        """Return the latest stored source observation for a fixture ID."""
+        fixture = FixtureStore(fixtures_path).get_fixture(fixture_id)
+        return {"found": fixture is not None, "fixture": fixture}
+
+    @server.tool()
+    def ingest_fixture_file(file_path: str, provider: str | None = None) -> dict:
+        """Import source-attributed fixture JSON into the local discovery catalogue."""
+        fixtures_path.parent.mkdir(parents=True, exist_ok=True)
+        return ingest_fixture_file(file_path, FixtureStore(fixtures_path), provider=provider)
 
     @server.tool()
     def predict_football_match(home_team: str, away_team: str, home_xg: float, away_xg: float) -> dict:
