@@ -2,6 +2,7 @@
 import asyncio
 import os
 import sys
+
 import pytest
 
 
@@ -14,6 +15,7 @@ def test_stdio_mcp_server_exposes_tools(tmp_path):
         env = os.environ.copy()
         env["SPORTS_PREDICTOR_LEDGER"] = str(tmp_path / "paper.sqlite3")
         env["SPORTS_PREDICTOR_DATASET"] = str(tmp_path / "matches.jsonl")
+        env["SPORTS_PREDICTOR_FIXTURES"] = str(tmp_path / "fixtures.jsonl")
         params = StdioServerParameters(
             command=sys.executable, args=["-m", "sports_predictor.mcp.server"], env=env
         )
@@ -22,12 +24,13 @@ def test_stdio_mcp_server_exposes_tools(tmp_path):
                 await session.initialize()
                 tools = await session.list_tools()
                 names = {tool.name for tool in tools.tools}
-                assert {"predict_football_match", "evaluate_betting_value",
-                        "record_paper_bet", "settle_paper_bet",
-                        "backtest_historical_matches", "paper_trading_summary"} <= names
-                result = await session.call_tool("predict_football_match", {
-                    "home_team": "Home", "away_team": "Away", "home_xg": 1.5, "away_xg": .8
-                })
+                assert {
+                    "search_competitions", "get_competition_fixtures", "get_fixture_details",
+                    "ingest_fixture_file", "predict_football_match", "evaluate_betting_value",
+                    "record_paper_bet", "settle_paper_bet", "backtest_historical_matches",
+                    "paper_trading_summary",
+                } <= names
+                result = await session.call_tool("search_competitions", {"query": "LaLiga"})
                 assert not result.isError
 
     asyncio.run(run())
