@@ -67,7 +67,7 @@ def test_fixture_lookup_returns_latest_provider_observation(tmp_path):
         home_team=first.home_team,
         away_team=first.away_team,
         source=DataSource.from_dict({
-            "provider": "manual",
+            "provider": "fotmob",
             "retrieved_at": "2026-11-16T11:00:00+01:00",
         }),
         status="live",
