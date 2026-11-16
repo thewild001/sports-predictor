@@ -126,11 +126,16 @@ class FixtureStore:
                 "competition_name": fixture.competition_name,
                 "country": fixture.country,
                 "season": fixture.season,
-                "fixture_count": 0,
+                "_fixture_ids": set(),
             })
-            item["fixture_count"] += 1
+            item["_fixture_ids"].add(fixture.fixture_id)
+        results = []
+        for item in competitions.values():
+            results.append({
+                key: value for key, value in item.items() if key != "_fixture_ids"
+            } | {"fixture_count": len(item["_fixture_ids"])})
         return sorted(
-            competitions.values(),
+            results,
             key=lambda item: (item["competition_name"].casefold(), item["season"]),
         )
 
@@ -154,8 +159,13 @@ class FixtureStore:
             "scheduled", "live", "finished", "postponed", "cancelled", "abandoned", "unknown"
         }:
             raise ValueError("unsupported fixture status")
+        latest: dict[str, FixtureRecord] = {}
+        for item in self.list():
+            current = latest.get(item.fixture_id)
+            if current is None or item.source.retrieved_at > current.source.retrieved_at:
+                latest[item.fixture_id] = item
         fixtures = [
-            item for item in self.list()
+            item for item in latest.values()
             if item.competition_id.casefold() == competition_id.casefold()
             and (start is None or item.kickoff.date() >= start)
             and (end is None or item.kickoff.date() <= end)
