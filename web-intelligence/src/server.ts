@@ -129,7 +129,8 @@ const server = createServer(async (req, res) => {
       stagehand = await Stagehand.create({ browser, ...(model ? { model } : {}) });
       const page = await browser.context.newPage();
       await page.goto(url.toString(), { waitUntil: "domcontentloaded" });
-      if (!isAllowedHost(new URL(page.url()).hostname)) {
+      const finalUrl = await page.url();
+      if (!isAllowedHost(new URL(finalUrl).hostname)) {
         throw new Error("navigation redirected outside ALLOWED_DOMAINS");
       }
       const schema = z.object({ fields: z.array(z.object({
@@ -140,7 +141,7 @@ const server = createServer(async (req, res) => {
         schema as never,
       );
       return send(res, 200, {
-        url: page.url(),
+        url: finalUrl,
         data: extracted.data,
         retrieved_at: new Date().toISOString(),
         extraction_method: "stagehand_extract",
