@@ -8,7 +8,7 @@ Sports Predictor transforma estadísticas trazables en probabilidades, evalúa c
 
 ## Capacidades
 
-- Modelo Poisson independiente para 1X2, ambos marcan, líneas de goles y marcadores probables.
+- Modelo Poisson independiente para 1X2, ambos marcan, líneas de goles y marcadores probables.\n- Análisis avanzado xG/xGA/xPTS con diferenciales explícitos y Skill especializada para matchup y mercados.
 - Ingesta desde archivos JSON (objeto o lista) y almacenamiento histórico JSONL, con proveedor, URL de origen, ID upstream y timestamp de recuperación.
 - Adaptador de normalización para payloads FotMob previamente guardados y mapeados; no scrapea endpoints no documentados.
 - Backtesting con log loss, Brier score y accuracy para 1X2, BTTS y Over 1.5/2.5/3.5.
@@ -89,7 +89,7 @@ Ejecuta `sports-predictor-mcp` mediante transporte stdio. Herramientas expuestas
 | `get_competition_fixtures` | Consultar partidos por competición, fecha y estado |
 | `get_fixture_details` | Consultar el registro y procedencia de un fixture |
 | `ingest_fixture_file` | Importar fixtures desde JSON al catálogo local |
-| `predict_football_match` | Predicción 1X2, BTTS, goles y marcadores |
+| `analyze_advanced_team_metrics` | Diferenciales xG, xGA y xPTS con convenciones explícitas |\n| `predict_football_match` | Predicción 1X2, BTTS, goles y marcadores |
 | `evaluate_betting_value` | EV, cuota justa y stake limitado |
 | `ingest_match_file` | Ingesta local con procedencia |
 | `backtest_historical_matches` | Evaluación histórica y calibración |
@@ -111,7 +111,7 @@ Se incluyen ejemplos de configuración y Skills para:
 - Pi
 - Hermes
 
-Consulta [Agent adapters](adapters/README.md) y [Agent integration](docs/agent-integration.md). Los ejemplos no sobrescriben configuraciones del usuario. La CI valida el protocolo MCP, pero **ninguno de los seis clientes debe considerarse verificado hasta ejecutar el smoke test en una instalación real**.
+Consulta [Agent adapters](adapters/README.md), [Agent integration](docs/agent-integration.md) y la Skill [Advanced football analysis](skills/advanced-football-analysis/SKILL.md). Los ejemplos no sobrescriben configuraciones del usuario. La CI valida el protocolo MCP, pero **ninguno de los seis clientes debe considerarse verificado hasta ejecutar el smoke test en una instalación real**.
 
 ```bash
 python scripts/agent_smoke.py --client all
@@ -152,3 +152,10 @@ docker compose --env-file .env -f docker-compose.web-intelligence.yml up --build
 Nuevas herramientas MCP: `browse_web_page` y `extract_web_page`. La segunda requiere habilitar Stagehand y configurar un modelo. El worker aplica allow-list de dominios, límites de tamaño/tiempo y publica en loopback por defecto.
 
 Esta capacidad recupera evidencia web, pero **no es todavía un adaptador específico de FotMob/SofaScore ni convierte automáticamente páginas en estadísticas canónicas**. Consulta [Web Intelligence](docs/web-intelligence.md) antes de habilitarla.
+
+
+## Advanced football analysis
+
+La Skill [advanced-football-analysis](skills/advanced-football-analysis/SKILL.md) guía el análisis individual de ambos equipos, el cruce xG/xGA, xPTS frente a puntos reales y la evaluación de hasta cuatro mercados. Puede trabajar con capturas aportadas por el usuario o datos recuperados de fuentes. La herramienta MCP `analyze_advanced_team_metrics` calcula diferenciales reproducibles: goles−xG, xGA−goles recibidos y puntos−xPTS.
+
+El agente no fuerza cuatro apuestas: exige cuotas trazables para calcular EV y stake, distingue probabilidad alta de valor esperado y recomienda no apostar cuando no existe evidencia o ventaja suficiente. Los colores de una tabla solo se interpretan si se conoce su leyenda. Consulta [Advanced football analysis](docs/advanced-football-analysis.md).

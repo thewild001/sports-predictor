@@ -18,6 +18,7 @@ def main() -> None:
     from sports_predictor.dashboard import export_dashboard
     from sports_predictor.prediction.backtest import backtest
     from sports_predictor.prediction.poisson import predict_match
+    from sports_predictor.analysis.team_metrics import analyze_team_metrics
     from sports_predictor.web_intelligence import WebIntelligenceClient, WebIntelligenceError
 
     server = FastMCP("sports-predictor")
@@ -73,6 +74,19 @@ def main() -> None:
         """Import source-attributed fixture JSON into the local discovery catalogue."""
         fixtures_path.parent.mkdir(parents=True, exist_ok=True)
         return import_fixture_file(file_path, FixtureStore(fixtures_path), provider=provider)
+
+    @server.tool()
+    def analyze_advanced_team_metrics(
+        team: str, matches: int, xg: float, goals_scored: float,
+        xga: float, goals_conceded: float, xpts: float, points: float,
+        tolerance: float = 0.15,
+    ) -> dict:
+        """Calculate xG, xGA and xPTS differentials with explicit sign conventions."""
+        return analyze_team_metrics(
+            team, matches=matches, xg=xg, goals_scored=goals_scored,
+            xga=xga, goals_conceded=goals_conceded, xpts=xpts,
+            points=points, tolerance=tolerance,
+        )
 
     @server.tool()
     def predict_football_match(home_team: str, away_team: str, home_xg: float, away_xg: float) -> dict:

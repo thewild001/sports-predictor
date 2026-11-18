@@ -60,3 +60,8 @@ When the Docker browser worker is running, MCP also exposes:
 Set `SPORTS_PREDICTOR_WEB_INTELLIGENCE_URL` and `SPORTS_PREDICTOR_WEB_INTELLIGENCE_TOKEN` in the MCP process. The worker must use the same token and an allow-list containing the target domain. See [web-intelligence.md](web-intelligence.md).
 
 Browser tools are acquisition primitives, not sports-data providers. The agent should use them to obtain source evidence and then pass it through a provider-specific adapter. Do not ask the LLM to invent canonical fixture or statistical records from page text.
+
+
+## Advanced football analysis
+
+Install/copy the `skills/advanced-football-analysis/SKILL.md` workflow into the agent's native skills directory. It standardizes xG/xGA/xPTS interpretation, team-by-team review, matchup analysis and price-aware betting decisions. The MCP tool `analyze_advanced_team_metrics` provides deterministic season-delta calculations; it does not fetch provider data or generate match probabilities.
