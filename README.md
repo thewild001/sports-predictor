@@ -4,7 +4,7 @@
 
 Sports Predictor transforma estadísticas trazables en probabilidades, evalúa cuotas y permite medir decisiones en paper trading. El núcleo estadístico es independiente de las fuentes de datos y del agente de IA que lo utilice.
 
-> **Estado: MVP ampliado.** Hay catálogo de competiciones y fixtures importados, ingesta histórica con procedencia, backtesting por mercado/competición, calibración experimental, MCP, adaptadores y paper trading. El descubrimiento opera sobre el catálogo local; todavía no hay proveedor de fixtures en vivo, descarga automática de FotMob, calibración fuera de muestra ni validación de los seis clientes en instalaciones reales.
+> **Estado: MVP ampliado.** Hay catálogo local, sincronización opcional de fixtures con Sportmonks, agregación de xG/xGA y xPTS por equipo/temporada, ingesta histórica, backtesting, MCP y paper trading. FotMob no se consulta automáticamente; la calibración sigue siendo in-sample y los seis clientes requieren validación real.
 
 ## Capacidades
 
@@ -59,7 +59,7 @@ Cada registro requiere fuente, timestamp de recuperación, competición, tempora
 
 El catálogo de fixtures permite descubrir competiciones/temporadas y consultar sus partidos por rango de fechas y estado. La capa es independiente del proveedor y conserva proveedor, URL, ID upstream y timestamp de recuperación.
 
-Actualmente los fixtures se importan desde JSON mediante la herramienta MCP `ingest_fixture_file`; no existe todavía un conector que descargue calendarios en vivo. Consulta [Competition discovery](docs/competition-discovery.md) para el contrato JSON y el flujo de consulta.
+Los fixtures se importan desde JSON mediante `ingest_fixture_file` o se sincronizan desde Sportmonks mediante `sync_sportmonks_fixtures` (token y cobertura requeridos). Consulta [Competition discovery](docs/competition-discovery.md) y [Sportmonks provider](docs/sportmonks.md).
 
 La ruta del catálogo se configura con `SPORTS_PREDICTOR_FIXTURES` y por defecto es `~/.sports-predictor/fixtures.jsonl`. Un catálogo vacío significa que no hay registros importados, no que la competición carezca de partidos reales.
 
@@ -92,6 +92,8 @@ Ejecuta `sports-predictor-mcp` mediante transporte stdio. Herramientas expuestas
 | `ingest_fixture_file` | Importar fixtures desde JSON al catálogo local |
 | `analyze_advanced_team_metrics` | Diferenciales xG, xGA y xPTS con convenciones explícitas |
 | `sync_sportmonks_fixtures` | Sincronizar fixtures desde Sportmonks API v3 |
+| `get_sportmonks_season_teams` | Resolver IDs y nombres de equipos por temporada |
+| `get_sportmonks_team_season_metrics` | Obtener xG/xGA/xPTS y diferenciales por equipo/temporada |
 | `predict_football_match` | Predicción 1X2, BTTS, goles y marcadores |
 | `evaluate_betting_value` | EV, cuota justa y stake limitado |
 | `ingest_match_file` | Ingesta local con procedencia |
@@ -101,7 +103,7 @@ Ejecuta `sports-predictor-mcp` mediante transporte stdio. Herramientas expuestas
 | `paper_trading_summary` | Métricas del portafolio simulado |
 | `export_paper_dashboard` | Exportar informe HTML |
 
-Variables: `SPORTS_PREDICTOR_LEDGER`, `SPORTS_PREDICTOR_DATASET` y `SPORTS_PREDICTOR_FIXTURES`.
+Variables: `SPORTS_PREDICTOR_LEDGER`, `SPORTS_PREDICTOR_DATASET`, `SPORTS_PREDICTOR_FIXTURES` y `SPORTS_PREDICTOR_SPORTMONKS_TOKEN`.
 
 ## Integración con agentes
 
@@ -132,7 +134,7 @@ GitHub Actions ejecuta tests y lint en Python 3.11 y 3.12.
 ## Limitaciones conocidas
 
 1. El modelo Poisson independiente es una línea base; no modela dependencia entre goles, alineaciones, lesiones ni contexto táctico.
-2. El catálogo de fixtures requiere importación; no existe todavía un proveedor de calendarios en vivo ni integración de cuotas en vivo.
+2. El proveedor Sportmonks sincroniza fixtures y métricas de temporada, pero requiere token, cobertura y el complemento xG; no aporta todavía cuotas, alineaciones ni lesiones.
 3. No hay entrenamiento con históricos ni calibración fuera de muestra automatizada.
 4. La simulación ROI usa una unidad plana y cuotas aportadas; no ajusta margen de mercado ni mide closing-line value.
 5. Las configuraciones de agentes requieren validación en las versiones instaladas por el usuario.

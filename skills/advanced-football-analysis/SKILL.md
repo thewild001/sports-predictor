@@ -16,7 +16,7 @@ Use this workflow for match previews, advanced-statistics tables/images and cons
 - Identify whether the sample is home/away, league-only or all competitions.
 
 ## 2. Analyze each team
-Use the MCP tool analyze_advanced_team_metrics when numeric aggregates are available. Its explicit conventions are:
+Use `get_sportmonks_season_teams(season_id)` to resolve Sportmonks team IDs, then `get_sportmonks_team_season_metrics(team_id, season_id)` to retrieve sourced season aggregates when the Sportmonks token and xG add-on are available. The provider method aggregates xG/xGA from completed fixtures and reads actual points/xPTS from season standings; it rejects incomplete xG coverage and ambiguous cup standings. Use the MCP tool `analyze_advanced_team_metrics` when numeric aggregates are available from other sources. Its explicit conventions are:
 - Finishing: goals scored minus xG. Positive means more goals than expected; negative means fewer.
 - Defensive outcomes: xGA minus goals conceded. Positive means fewer goals conceded than expected; negative means more.
 - Points: actual points minus xPTS. Positive means more points than expected; negative means fewer.

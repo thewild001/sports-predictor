@@ -94,6 +94,32 @@ def main() -> None:
             return {"ok": False, "provider": "sportmonks", "error": str(exc)}
 
     @server.tool()
+    def get_sportmonks_season_teams(season_id: int) -> dict:
+        """Resolve Sportmonks team IDs and names for a season."""
+        token = os.environ.get("SPORTS_PREDICTOR_SPORTMONKS_TOKEN")
+        if not token:
+            return {"ok": False, "error": "Set SPORTS_PREDICTOR_SPORTMONKS_TOKEN in the MCP server environment."}
+        try:
+            teams = SportmonksClient(token).fetch_season_teams(season_id)
+            return {"ok": True, "season_id": season_id, "teams": teams, "count": len(teams)}
+        except (SportmonksError, ValueError) as exc:
+            return {"ok": False, "provider": "sportmonks", "error": str(exc)}
+
+    @server.tool()
+    def get_sportmonks_team_season_metrics(team_id: int, season_id: int) -> dict:
+        """Fetch and analyze completed-season xG, xGA, actual points and xPTS for a Sportmonks team ID."""
+        token = os.environ.get("SPORTS_PREDICTOR_SPORTMONKS_TOKEN")
+        if not token:
+            return {
+                "ok": False,
+                "error": "Set SPORTS_PREDICTOR_SPORTMONKS_TOKEN in the MCP server environment.",
+            }
+        try:
+            return {"ok": True, **SportmonksClient(token).fetch_team_season_metrics(team_id, season_id)}
+        except (SportmonksError, ValueError) as exc:
+            return {"ok": False, "provider": "sportmonks", "error": str(exc)}
+
+    @server.tool()
     def analyze_advanced_team_metrics(
         team: str, matches: int, xg: float, goals_scored: float,
         xga: float, goals_conceded: float, xpts: float, points: float,
