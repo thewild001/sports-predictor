@@ -8,6 +8,7 @@ Sports Predictor separates fixture discovery from match prediction. The catalogu
 2. `get_competition_fixtures(competition_id, date_from?, date_to?, status?, limit?)` returns fixtures ordered by kickoff. Dates use `YYYY-MM-DD`; limit is capped at 100.
 3. `get_fixture_details(fixture_id)` returns the latest stored source observation.
 4. `ingest_fixture_file(file_path, provider?)` imports a JSON array or an object with a `fixtures` array.
+5. `sync_sportmonks_fixtures(date_from, date_to)` fetches a date range from Sportmonks API v3 when `SPORTS_PREDICTOR_SPORTMONKS_TOKEN` is configured.
 
 The fixture catalogue location is configured through `SPORTS_PREDICTOR_FIXTURES` (default `~/.sports-predictor/fixtures.jsonl`).
 

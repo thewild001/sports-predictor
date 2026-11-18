@@ -8,7 +8,8 @@ Sports Predictor transforma estadísticas trazables en probabilidades, evalúa c
 
 ## Capacidades
 
-- Modelo Poisson independiente para 1X2, ambos marcan, líneas de goles y marcadores probables.\n- Análisis avanzado xG/xGA/xPTS con diferenciales explícitos y Skill especializada para matchup y mercados.
+- Modelo Poisson independiente para 1X2, ambos marcan, líneas de goles y marcadores probables.
+- Análisis avanzado xG/xGA/xPTS con diferenciales explícitos y Skill especializada para matchup y mercados.
 - Ingesta desde archivos JSON (objeto o lista) y almacenamiento histórico JSONL, con proveedor, URL de origen, ID upstream y timestamp de recuperación.
 - Adaptador de normalización para payloads FotMob previamente guardados y mapeados; no scrapea endpoints no documentados.
 - Backtesting con log loss, Brier score y accuracy para 1X2, BTTS y Over 1.5/2.5/3.5.
@@ -52,7 +53,7 @@ sports-predictor backtest --database sports-predictor-matches.jsonl --calibrate
 
 Cada registro requiere fuente, timestamp de recuperación, competición, temporada, kickoff, equipos, goles y xG. Los timestamps deben incluir zona horaria. El almacén deduplica por `(match_id, provider)` y no sobrescribe silenciosamente registros existentes.
 
-**FotMob:** el adaptador actual normaliza un sobre de datos previamente mapeado; no realiza peticiones automáticas ni depende de endpoints internos no documentados. Revisa [Data ingestion](docs/data-ingestion.md) antes de conectar una fuente real.
+**FotMob:** el adaptador solo normaliza payloads previamente mapeados. FotMob ha solicitado que no se automatice el acceso sin autorización previa. Para fixtures en vivo se incorpora Sportmonks API v3 como proveedor opcional. Consulta [Data ingestion](docs/data-ingestion.md) y [Sportmonks provider](docs/sportmonks.md).
 
 ## Descubrimiento de competiciones y partidos
 
@@ -89,7 +90,9 @@ Ejecuta `sports-predictor-mcp` mediante transporte stdio. Herramientas expuestas
 | `get_competition_fixtures` | Consultar partidos por competición, fecha y estado |
 | `get_fixture_details` | Consultar el registro y procedencia de un fixture |
 | `ingest_fixture_file` | Importar fixtures desde JSON al catálogo local |
-| `analyze_advanced_team_metrics` | Diferenciales xG, xGA y xPTS con convenciones explícitas |\n| `predict_football_match` | Predicción 1X2, BTTS, goles y marcadores |
+| `analyze_advanced_team_metrics` | Diferenciales xG, xGA y xPTS con convenciones explícitas |
+| `sync_sportmonks_fixtures` | Sincronizar fixtures desde Sportmonks API v3 |
+| `predict_football_match` | Predicción 1X2, BTTS, goles y marcadores |
 | `evaluate_betting_value` | EV, cuota justa y stake limitado |
 | `ingest_match_file` | Ingesta local con procedencia |
 | `backtest_historical_matches` | Evaluación histórica y calibración |
@@ -156,6 +159,6 @@ Esta capacidad recupera evidencia web, pero **no es todavía un adaptador espec�
 
 ## Advanced football analysis
 
-La Skill [advanced-football-analysis](skills/advanced-football-analysis/SKILL.md) guía el análisis individual de ambos equipos, el cruce xG/xGA, xPTS frente a puntos reales y la evaluación de hasta cuatro mercados. Puede trabajar con capturas aportadas por el usuario o datos recuperados de fuentes. La herramienta MCP `analyze_advanced_team_metrics` calcula diferenciales reproducibles: goles−xG, xGA−goles recibidos y puntos−xPTS.
+La Skill [advanced-football-analysis](skills/advanced-football-analysis/SKILL.md) guía el análisis individual de ambos equipos, el cruce xG/xGA, xPTS frente a puntos reales y la evaluación de hasta cuatro mercados. Puede trabajar con capturas aportadas por el usuario o datos recuperados de fuentes. La herramienta MCP `analyze_advanced_team_metrics` calcula diferenciales reproducibles: goles−xG, xGA−goles recibidos y puntos−xPTS. `sync_sportmonks_fixtures` sincroniza fixtures de un rango de fechas cuando existe token y cobertura.
 
 El agente no fuerza cuatro apuestas: exige cuotas trazables para calcular EV y stake, distingue probabilidad alta de valor esperado y recomienda no apostar cuando no existe evidencia o ventaja suficiente. Los colores de una tabla solo se interpretan si se conoce su leyenda. Consulta [Advanced football analysis](docs/advanced-football-analysis.md).

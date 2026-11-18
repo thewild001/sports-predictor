@@ -40,7 +40,7 @@ The importer deduplicates on (match_id, provider), appends to JSONL and reports 
 
 ## FotMob boundary
 
-FotMob does not expose a stable public API contract for this project to rely on. The current `FotMobPayloadAdapter` is a normalizer for a saved, explicitly mapped FotMob payload envelope; it does **not** fetch pages, scrape undocumented endpoints or bypass access controls. Keep the original page URL, retrieval time and upstream match identifier. A future fetch adapter must be added only after its access method, terms and schema stability are reviewed.
+FotMob does not provide this project with an authorized stable public API contract. In January 2026, FotMob explicitly asked the SoccerData project to remove its scraper because automated or programmatic access without prior approval was not permitted. The current `FotMobPayloadAdapter` is therefore only a normalizer for a saved, explicitly mapped payload envelope; it does **not** fetch pages or endpoints. See the [FotMob request](https://github.com/probberechts/soccerdata/issues/918). Do not add automated FotMob access without written authorization.
 
 ## Data quality checklist
 
@@ -81,4 +81,4 @@ Import a JSON array or an object containing a `fixtures` array with the MCP tool
 
 Set `SPORTS_PREDICTOR_FIXTURES` to change the JSONL catalogue location. The default is `~/.sports-predictor/fixtures.jsonl`.
 
-The discovery API currently reads imported records only. It does not fetch FotMob or any other provider automatically, and an empty catalogue must never be presented as an empty real-world competition schedule.
+The discovery API reads the local catalogue. An optional Sportmonks API v3 provider can now synchronize fixtures when a valid token and plan coverage are available; it does not fetch FotMob. An empty catalogue must never be presented as an empty real-world competition schedule. See [Sportmonks provider](sportmonks.md).

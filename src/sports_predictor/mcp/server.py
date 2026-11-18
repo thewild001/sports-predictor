@@ -15,6 +15,7 @@ def main() -> None:
     from sports_predictor.data.fixtures import FixtureStore, ingest_fixture_file as import_fixture_file
     from sports_predictor.data.ingest import ingest_file
     from sports_predictor.data.store import MatchStore
+    from sports_predictor.data.providers.sportmonks import SportmonksClient, SportmonksError
     from sports_predictor.dashboard import export_dashboard
     from sports_predictor.prediction.backtest import backtest
     from sports_predictor.prediction.poisson import predict_match
@@ -74,6 +75,23 @@ def main() -> None:
         """Import source-attributed fixture JSON into the local discovery catalogue."""
         fixtures_path.parent.mkdir(parents=True, exist_ok=True)
         return import_fixture_file(file_path, FixtureStore(fixtures_path), provider=provider)
+
+    @server.tool()
+    def sync_sportmonks_fixtures(date_from: str, date_to: str) -> dict:
+        """Fetch permitted Sportmonks fixtures and append them to the local catalogue."""
+        token = os.environ.get("SPORTS_PREDICTOR_SPORTMONKS_TOKEN")
+        if not token:
+            return {
+                "ok": False,
+                "error": "Set SPORTS_PREDICTOR_SPORTMONKS_TOKEN in the MCP server environment.",
+            }
+        try:
+            records = SportmonksClient(token).fetch_fixtures(date_from, date_to)
+            fixtures_path.parent.mkdir(parents=True, exist_ok=True)
+            result = FixtureStore(fixtures_path).append(records)
+            return {"ok": True, "provider": "sportmonks", "fetched": len(records), **result}
+        except (SportmonksError, ValueError) as exc:
+            return {"ok": False, "provider": "sportmonks", "error": str(exc)}
 
     @server.tool()
     def analyze_advanced_team_metrics(
