@@ -79,7 +79,7 @@ def test_fetch_fixtures_follows_pagination():
 def test_normalizer_rejects_missing_participants():
     raw = fixture_payload()
     raw.pop("participants")
-    with pytest.raises(SportmonksError, match="participants"):
+    with pytest.raises(ValueError, match="participants"):
         SportmonksClient.normalize_fixture(
             raw,
             retrieved_at=datetime.now(timezone.utc),
