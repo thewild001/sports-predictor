@@ -132,17 +132,17 @@ def test_fetch_team_season_metrics_aggregates_xg_xga_and_xpts():
     away = season_fixture(101, 30, 10, 0.9, 1.4, 1, 1)
 
     def requester(url, headers, timeout):
-        if "/seasons/2026?" in url:
-            return {"data": {"id": 2026, "league_id": 8, "name": "2026/27",
-                             "starting_at": "2026-08-01", "ending_at": "2027-05-31"}}
-        if "/fixtures/between/" in url:
-            return {"data": [home, away], "meta": {"pagination": {"has_more": False}}}
         if "/standings/seasons/2026?" in url:
             return {"data": [{
                 "participant_id": 10, "points": 4,
                 "participant": {"name": "Team 10"},
                 "details": [{"type_id": 7939, "value": {"value": 3.2}}],
             }]}
+        if "/fixtures/between/" in url:
+            return {"data": [home, away], "meta": {"pagination": {"has_more": False}}}
+        if "/seasons/2026?" in url:
+            return {"data": {"id": 2026, "league_id": 8, "name": "2026/27",
+                             "starting_at": "2026-08-01", "ending_at": "2027-05-31"}}
         raise AssertionError(url)
 
     result = SportmonksClient("token", requester=requester).fetch_team_season_metrics(10, 2026)
@@ -165,14 +165,14 @@ def test_fetch_team_season_metrics_rejects_missing_xg_coverage():
     ]
 
     def requester(url, headers, timeout):
-        if "/seasons/2026?" in url:
-            return {"data": {"id": 2026, "league_id": 8, "name": "2026/27",
-                             "starting_at": "2026-08-01", "ending_at": "2027-05-31"}}
-        if "/fixtures/between/" in url:
-            return {"data": [fixture], "meta": {"pagination": {"has_more": False}}}
         if "/standings/seasons/2026?" in url:
             return {"data": [{"participant_id": 10, "points": 3,
                               "details": [{"type_id": 7939, "value": 2.4}]}]}
+        if "/fixtures/between/" in url:
+            return {"data": [fixture], "meta": {"pagination": {"has_more": False}}}
+        if "/seasons/2026?" in url:
+            return {"data": {"id": 2026, "league_id": 8, "name": "2026/27",
+                             "starting_at": "2026-08-01", "ending_at": "2027-05-31"}}
         raise AssertionError(url)
 
     with pytest.raises(SportmonksError, match="xG coverage incomplete"):
@@ -183,15 +183,15 @@ def test_fetch_team_season_metrics_rejects_ambiguous_cup_standings():
     fixture = season_fixture(100, 10, 20, 1.8, 0.7, 2, 0)
 
     def requester(url, headers, timeout):
-        if "/seasons/2026?" in url:
-            return {"data": {"id": 2026, "league_id": 8, "name": "Cup",
-                             "starting_at": "2026-08-01", "ending_at": "2027-05-31"}}
-        if "/fixtures/between/" in url:
-            return {"data": [fixture], "meta": {"pagination": {"has_more": False}}}
         if "/standings/seasons/2026?" in url:
             row = {"participant_id": 10, "points": 4,
                    "details": [{"type_id": 7939, "value": 3.2}]}
             return {"data": [row, row]}
+        if "/fixtures/between/" in url:
+            return {"data": [fixture], "meta": {"pagination": {"has_more": False}}}
+        if "/seasons/2026?" in url:
+            return {"data": {"id": 2026, "league_id": 8, "name": "Cup",
+                             "starting_at": "2026-08-01", "ending_at": "2027-05-31"}}
         raise AssertionError(url)
 
     with pytest.raises(SportmonksError, match="exactly one standings row"):
@@ -213,7 +213,7 @@ def test_fetch_season_teams_returns_ids_and_follows_pagination():
         return next(pages)
 
     teams = SportmonksClient("token", requester=requester).fetch_season_teams(2026)
-    assert [team["team_id"] for team in teams] == [10, 20]
-    assert [team["name"] for team in teams] == ["Home FC", "Away FC"]
+    assert [team["team_id"] for team in teams] == [20, 10]
+    assert [team["name"] for team in teams] == ["Away FC", "Home FC"]
     assert "page=1" in calls[0]
     assert "page=2" in calls[1]
